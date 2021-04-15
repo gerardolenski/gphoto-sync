@@ -1,0 +1,18 @@
+photouploader:
+  google:
+    photolibrary:
+      credential-dir: ${PHOTO_GOOGLE_CREDENTIAL_DIR}
+      credential-file: ${PHOTO_GOOGLE_CREDENTIAL_FILE:credentials.json}
+      local-receiver-port: ${PHOTO_GOOGLE_RECEIVER_PORT:61984}
+      user-id: ${PHOTO_GOOGLE_USER_ID}
+  library:
+    path: ${PHOTO_LIBRARY_PATH}
+  synchronizer:
+    albums-concurrency: ${PHOTO_ALBUMS_CONCURRENCY:5}
+    upload-concurrency: ${PHOTO_UPLOAD_CONCURRENCY:3}
+    upload-bulk-size: ${PHOTO_UPLOAD_BULK_SIZE:10}
+
+logging:
+  level:
+    root: info
+    org.gol: debug
