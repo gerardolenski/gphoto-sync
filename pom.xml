@@ -10,8 +10,8 @@
     </parent>
     <groupId>org.gol</groupId>
     <artifactId>google-photo-synchronizer</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>photo-manager</name>
+    <version>0.1.0</version>
+    <name>google-photo-sync</name>
     <description>Google Photo Synchronizer</description>
     <properties>
         <java.version>11</java.version>
