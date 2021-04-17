@@ -15,4 +15,4 @@ photouploader:
 logging:
   level:
     root: info
-    org.gol: info
+    org.gol: debug

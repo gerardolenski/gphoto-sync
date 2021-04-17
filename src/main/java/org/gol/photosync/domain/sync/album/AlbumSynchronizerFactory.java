@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.gol.photosync.domain.google.album.AlbumOperation;
 import org.gol.photosync.domain.google.media.ImageOperation;
+import org.gol.photosync.domain.library.LocalLibraryPort;
 import org.gol.photosync.domain.model.AlbumSyncResult;
 import org.gol.photosync.domain.model.LocalAlbum;
 import org.gol.photosync.domain.sync.SyncProperties;
@@ -23,14 +24,20 @@ public class AlbumSynchronizerFactory {
 
     private final AlbumOperation albumOperation;
     private final ImageOperation imageOperation;
+    private final LocalLibraryPort localLibraryOperation;
     private final SyncProperties syncProperties;
     private final ExecutorService albumSyncExecutor;
     private final ExecutorService uploadExecutor;
 
-    public AlbumSynchronizerFactory(AlbumOperation albumOperation, ImageOperation imageOperation, SyncProperties syncProperties) {
+    public AlbumSynchronizerFactory(
+            AlbumOperation albumOperation,
+            ImageOperation imageOperation,
+            LocalLibraryPort localLibraryOperation,
+            SyncProperties syncProperties) {
         log.debug("Init AlbumSynchronizerFactory: syncProperties={}", syncProperties);
         this.albumOperation = albumOperation;
         this.imageOperation = imageOperation;
+        this.localLibraryOperation = localLibraryOperation;
         this.syncProperties = syncProperties;
         this.albumSyncExecutor = newFixedThreadPool(syncProperties.getAlbumsConcurrency(),
                 new BasicThreadFactory.Builder()
@@ -46,6 +53,7 @@ public class AlbumSynchronizerFactory {
         return new AlbumSynchronizer(localAlbum,
                 albumOperation,
                 imageOperation,
+                localLibraryOperation,
                 syncProperties.getUploadBulkSize(),
                 albumSyncExecutor,
                 uploadExecutor);

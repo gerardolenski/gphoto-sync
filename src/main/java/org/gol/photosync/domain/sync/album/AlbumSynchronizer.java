@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gol.photosync.domain.google.album.AlbumOperation;
 import org.gol.photosync.domain.google.media.ImageOperation;
+import org.gol.photosync.domain.library.LocalLibraryPort;
 import org.gol.photosync.domain.model.AlbumSyncResult;
 import org.gol.photosync.domain.model.LocalAlbum;
 import org.gol.photosync.domain.model.LocalImage;
@@ -33,13 +34,15 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
     private final LocalAlbum localAlbum;
     private final AlbumOperation albumOperation;
     private final ImageOperation imageOperation;
+    private final LocalLibraryPort localLibrary;
     private final int partitionSize;
     private final ExecutorService albumSyncExecutor;
     private final ExecutorService uploadExecutor;
     private final AlbumSyncResult.AlbumSyncResultBuilder albumSyncResultBuilder = AlbumSyncResult.builder();
 
+    private List<LocalImage> localImages;
     private Album googleAlbum;
-    private List<String> existingImages;
+    private List<String> googleImages;
     private List<List<LocalImage>> missingImagesPartitions;
 
     @Override
@@ -49,11 +52,9 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
 
     @Override
     public AlbumSyncResult call() {
-        log.info("Synchronize album: title={}, path={}", localAlbum.getTitle(), localAlbum.getPath());
-        albumSyncResultBuilder
-                .title(localAlbum.getTitle())
-                .imagesCount(localAlbum.getImages().size());
-        readRemoteAlbum();
+        log.info("Synchronizing album: title={}, path={}", localAlbum.getTitle(), localAlbum.getPath());
+        loadLocalAlbum();
+        loadRemoteAlbum();
         locateMissingImages();
         var uploadResult = missingImagesPartitions.stream()
                 .map(this::uploadMissingImages)
@@ -65,14 +66,21 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
         return albumSyncResultBuilder.build();
     }
 
-    private void readRemoteAlbum() {
+    private void loadLocalAlbum() {
+        localImages = localLibrary.getAlbumImages(localAlbum);
+        albumSyncResultBuilder
+                .title(localAlbum.getTitle())
+                .imagesCount(localImages.size());
+    }
+
+    private void loadRemoteAlbum() {
         googleAlbum = albumOperation.getOrCreate(localAlbum.getTitle());
-        existingImages = imageOperation.listAlbumImages(googleAlbum.getId());
+        googleImages = imageOperation.listAlbumImages(googleAlbum.getId());
     }
 
     private void locateMissingImages() {
-        var missingImages = localAlbum.getImages().stream()
-                .filter(not(img -> existingImages.contains(img.getFileName())))
+        var missingImages = localImages.stream()
+                .filter(not(img -> googleImages.contains(img.getFileName())))
                 .collect(toList());
         albumSyncResultBuilder.missingImages(missingImages.size());
         missingImagesPartitions = partition(missingImages, partitionSize);
