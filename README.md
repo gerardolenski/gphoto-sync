@@ -30,7 +30,14 @@ where:
 - `PHOTO_UPLOAD_CONCURRENCY` - number of concurrent threads uploading images (`3` by default),
 - `PHOTO_UPLOAD_BULK_SIZE` - number of image bulk size linking to remote album. According to Google specification must be less than 50 (`10` by default).
 
-## Build and run
+## Run as docker container
+Go into docker-compose directory and edit `.env` file with correct `PHOTO_GOOGLE_CREDENTIAL_DIR`, `PHOTO_GOOGLE_USER_ID` and `PHOTO_LIBRARY_PATH`.
+Then execute:
+```
+docker-compose up
+``` 
+
+## Build and run jar
 To build the project use maven command:
 ```
 mvn clean package
