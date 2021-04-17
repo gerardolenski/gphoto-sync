@@ -38,7 +38,7 @@ class RemoteImageService implements RemoteImagePort {
 
     @Override
     public NewMediaItem uploadImage(LocalImage image) {
-        log.debug("Uploading image: {}", image.getDescription());
+        log.info("Uploading image: {}", image.getDescription());
         return Try.withResources(googleClientFactory::getClient)
                 .of(client -> mediaItemRepository.uploadImage(client, image.getFile(), image.getMimeType()))
                 .peek(r -> log.trace("Image upload response: token={}, error={}", r.getUploadToken(), r.getError()))

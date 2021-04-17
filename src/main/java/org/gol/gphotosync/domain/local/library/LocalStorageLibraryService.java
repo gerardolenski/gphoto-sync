@@ -12,9 +12,11 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.lang.String.format;
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static org.gol.gphotosync.domain.util.ImageUtils.getImageMimeType;
 
@@ -61,6 +63,7 @@ class LocalStorageLibraryService implements LocalLibraryPort {
                         .mimeType(t._2.get())
                         .description(format("%s: %s", albumDirectory.getFileName(), t._1.getFileName()))
                         .build())
+                .sorted(comparing(LocalImage::getFileName))
                 .collect(toList()))
                 .getOrElse(List.of());
         log.trace("Collected images: albumDirectory={}, imagesCount={}", albumDirectory, images.size());

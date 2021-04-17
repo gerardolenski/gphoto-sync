@@ -10,7 +10,7 @@
     </parent>
     <groupId>org.gol</groupId>
     <artifactId>google-photo-synchronizer</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <name>google-photo-sync</name>
     <description>Google Photo Synchronizer</description>
     <properties>
