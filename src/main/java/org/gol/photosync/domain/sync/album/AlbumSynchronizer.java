@@ -7,25 +7,28 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gol.photosync.domain.google.album.AlbumOperation;
 import org.gol.photosync.domain.google.media.ImageOperation;
+import org.gol.photosync.domain.model.AlbumSyncResult;
 import org.gol.photosync.domain.model.LocalAlbum;
 import org.gol.photosync.domain.model.LocalImage;
 import org.gol.photosync.domain.sync.Synchronizer;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import static com.google.common.collect.Lists.partition;
+import static java.util.function.Function.identity;
 import static java.util.function.Predicate.not;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 @RequiredArgsConstructor
-class AlbumSynchronizer implements Synchronizer, Callable<Void> {
+class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<AlbumSyncResult> {
 
     private final LocalAlbum localAlbum;
     private final AlbumOperation albumOperation;
@@ -33,26 +36,33 @@ class AlbumSynchronizer implements Synchronizer, Callable<Void> {
     private final int partitionSize;
     private final ExecutorService albumSyncExecutor;
     private final ExecutorService uploadExecutor;
+    private final AlbumSyncResult.AlbumSyncResultBuilder albumSyncResultBuilder = AlbumSyncResult.builder();
 
     private Album googleAlbum;
     private List<String> existingImages;
-    private List<LocalImage> missingImages;
     private List<List<LocalImage>> missingImagesPartitions;
 
     @Override
-    public Future<Void> invoke() {
+    public Future<AlbumSyncResult> invoke() {
         return albumSyncExecutor.submit(this);
     }
 
     @Override
-    public Void call() {
+    public AlbumSyncResult call() {
         log.info("Synchronize album: title={}, path={}", localAlbum.getTitle(), localAlbum.getPath());
+        albumSyncResultBuilder
+                .title(localAlbum.getTitle())
+                .imagesCount(localAlbum.getImages().size());
         readRemoteAlbum();
         locateMissingImages();
-        missingImagesPartitions.stream()
+        var uploadResult = missingImagesPartitions.stream()
                 .map(this::uploadMissingImages)
-                .forEach(this::linkUploadedImagesToAlbum);
-        return null;
+                .map(this::linkUploadedImagesToAlbum)
+                .map(Map::entrySet)
+                .flatMap(Collection::stream)
+                .collect(groupingBy(Map.Entry::getKey, summingLong(Map.Entry::getValue)));
+        albumSyncResultBuilder.uploadStats(uploadResult);
+        return albumSyncResultBuilder.build();
     }
 
     private void readRemoteAlbum() {
@@ -61,9 +71,10 @@ class AlbumSynchronizer implements Synchronizer, Callable<Void> {
     }
 
     private void locateMissingImages() {
-        missingImages = localAlbum.getImages().stream()
+        var missingImages = localAlbum.getImages().stream()
                 .filter(not(img -> existingImages.contains(img.getFileName())))
                 .collect(toList());
+        albumSyncResultBuilder.missingImages(missingImages.size());
         missingImagesPartitions = partition(missingImages, partitionSize);
         if (isEmpty(missingImages)) {
             log.info("The album is up to date: album={}", localAlbum.getTitle());
@@ -90,7 +101,10 @@ class AlbumSynchronizer implements Synchronizer, Callable<Void> {
                 .collect(toList());
     }
 
-    private void linkUploadedImagesToAlbum(List<NewMediaItem> uploadedImages) {
-        albumOperation.addElements(googleAlbum, uploadedImages);
+    private Map<String, Long> linkUploadedImagesToAlbum(List<NewMediaItem> uploadedImages) {
+        return albumOperation.addElements(googleAlbum, uploadedImages)
+                .getNewMediaItemResultsList().stream()
+                .map(m -> m.hasStatus() ? m.getStatus().getMessage() : "Unknown")
+                .collect(groupingBy(identity(), counting()));
     }
 }

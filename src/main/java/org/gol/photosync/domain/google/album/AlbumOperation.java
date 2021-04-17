@@ -1,5 +1,6 @@
 package org.gol.photosync.domain.google.album;
 
+import com.google.photos.library.v1.proto.BatchCreateMediaItemsResponse;
 import com.google.photos.library.v1.proto.NewMediaItem;
 import com.google.photos.types.proto.Album;
 
@@ -15,5 +16,5 @@ public interface AlbumOperation {
      */
     Album getOrCreate(String title);
 
-    void addElements(Album album, List<NewMediaItem> images);
+    BatchCreateMediaItemsResponse addElements(Album album, List<NewMediaItem> images);
 }

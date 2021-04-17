@@ -11,8 +11,6 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 public final class LoggerUtils {
 
-    private static final String NULL = "null";
-
     /**
      * Formats the exception details for logging without the stack trace.
      *

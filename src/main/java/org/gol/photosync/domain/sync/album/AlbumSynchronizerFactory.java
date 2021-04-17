@@ -4,17 +4,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.gol.photosync.domain.google.album.AlbumOperation;
 import org.gol.photosync.domain.google.media.ImageOperation;
+import org.gol.photosync.domain.model.AlbumSyncResult;
 import org.gol.photosync.domain.model.LocalAlbum;
 import org.gol.photosync.domain.sync.SyncProperties;
 import org.gol.photosync.domain.sync.Synchronizer;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutorService;
 
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
 @Slf4j
 @Service
+@Scope(SCOPE_PROTOTYPE)
 public class AlbumSynchronizerFactory {
 
     private final AlbumOperation albumOperation;
@@ -24,6 +28,7 @@ public class AlbumSynchronizerFactory {
     private final ExecutorService uploadExecutor;
 
     public AlbumSynchronizerFactory(AlbumOperation albumOperation, ImageOperation imageOperation, SyncProperties syncProperties) {
+        log.debug("Init AlbumSynchronizerFactory: syncProperties={}", syncProperties);
         this.albumOperation = albumOperation;
         this.imageOperation = imageOperation;
         this.syncProperties = syncProperties;
@@ -37,7 +42,7 @@ public class AlbumSynchronizerFactory {
                         .build());
     }
 
-    public Synchronizer getSynchronizer(LocalAlbum localAlbum) {
+    public Synchronizer<AlbumSyncResult> getSynchronizer(LocalAlbum localAlbum) {
         return new AlbumSynchronizer(localAlbum,
                 albumOperation,
                 imageOperation,

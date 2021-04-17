@@ -15,7 +15,6 @@ import java.util.Optional;
 import static io.vavr.control.Try.withResources;
 import static java.util.stream.Collectors.toList;
 import static org.gol.photosync.domain.util.LoggerUtils.formatEx;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 @Service
@@ -35,18 +34,16 @@ class AlbumService implements AlbumOperation {
     }
 
     @Override
-    public void addElements(Album album, List<NewMediaItem> images) {
-        if (isEmpty(images)) {
-            log.info("The album is up to date: album={}", album.getTitle());
-            return;
-        }
+    public BatchCreateMediaItemsResponse addElements(Album album, List<NewMediaItem> images) {
         log.info("Linking album images: album={}", album.getTitle());
-        withResources(clientFactory::getClient)
+        return withResources(clientFactory::getClient)
                 .of(client -> client.batchCreateMediaItems(album.getId(), images))
                 .onSuccess(result -> this.logCreateMediaItemsResponse(album.getTitle(), result))
-                .onFailure(e -> log.error("Linking album images failed: album={}, cause={}", album.getTitle(), formatEx(e)));
+                .onFailure(e -> log.error("Linking album images failed: album={}, cause={}", album.getTitle(), formatEx(e)))
+                .get();
     }
 
+    @SuppressWarnings("java:S3864") // peek is used for trace logging
     private Optional<Album> getAlbum(PhotosLibraryClient client, String albumTitle) {
         return albumRepository.streamAlbums(client)
                 .filter(a -> a.getTitle().equals(albumTitle))
@@ -62,7 +59,7 @@ class AlbumService implements AlbumOperation {
     }
 
     private void logCreateMediaItemsResponse(String albumTitle, BatchCreateMediaItemsResponse response) {
-        log.info("Linking album images result: album={}, images={}", albumTitle, response.getNewMediaItemResultsList()
+        log.debug("Linking album images result: album={}, images={}", albumTitle, response.getNewMediaItemResultsList()
                 .stream()
                 .map(r -> r.getStatus().getMessage() + ": " + r.getMediaItem().getFilename())
                 .collect(toList()));
