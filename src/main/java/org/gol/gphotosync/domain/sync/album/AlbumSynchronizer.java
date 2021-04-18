@@ -22,9 +22,11 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import static com.google.common.collect.Lists.partition;
+import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.*;
+import static org.gol.gphotosync.domain.util.LoggerUtils.formatEx;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
@@ -52,7 +54,21 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
 
     @Override
     public AlbumSyncResult call() {
-        log.info("Synchronizing album: title={}, path={}", localAlbum.getTitle(), localAlbum.getPath());
+        return Try.of(this::synchronizeAlbum)
+                .onFailure(e -> log.error("Album synchronization failed: albumTitle={}, cause={}",
+                        ofNullable(localAlbum)
+                                .map(LocalAlbum::getTitle)
+                                .orElse("Unknown"),
+                        formatEx(e)))
+                .recover(e -> albumSyncResultBuilder
+                        .syncFailed(true)
+                        .syncErrorMessage(e.getMessage())
+                        .build())
+                .get();
+    }
+
+    private AlbumSyncResult synchronizeAlbum() {
+        log.info("Synchronizing album: albumTitle={}, path={}", localAlbum.getTitle(), localAlbum.getPath());
         loadLocalAlbum();
         loadRemoteAlbum();
         locateMissingImages();
@@ -85,9 +101,9 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
         albumSyncResultBuilder.missingImages(missingImages.size());
         missingImagesPartitions = partition(missingImages, partitionSize);
         if (isEmpty(missingImages)) {
-            log.info("The album is up to date: album={}", localAlbum.getTitle());
+            log.info("The album is up to date: albumTitle={}", localAlbum.getTitle());
         } else {
-            log.debug("New images to upload: album={}, images={}, partitions={}",
+            log.debug("New images to upload: albumTitle={}, images={}, partitions={}",
                     localAlbum.getTitle(),
                     missingImages.stream()
                             .map(LocalImage::getFileName)
