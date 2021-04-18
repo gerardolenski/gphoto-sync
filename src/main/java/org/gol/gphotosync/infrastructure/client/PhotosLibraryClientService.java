@@ -65,6 +65,13 @@ class PhotosLibraryClientService implements GoogleClientFactory {
                 .setMaxRetryDelay(Duration.ofMinutes(1))
                 .build();
 
+        builder.searchMediaItemsSettings()
+                .retrySettings()
+                .setMaxAttempts(100)
+                .setInitialRetryDelay(Duration.ofSeconds(1))
+                .setMaxRetryDelay(Duration.ofMinutes(1))
+                .build();
+
         return builder.build();
 
     }
