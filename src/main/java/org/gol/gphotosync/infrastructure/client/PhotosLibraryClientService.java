@@ -34,45 +34,8 @@ class PhotosLibraryClientService implements GoogleClientFactory {
     }
 
     private PhotosLibrarySettings prepareSettings() throws IOException {
-        var builder = PhotosLibrarySettings.newBuilder()
-                .setCredentialsProvider(FixedCredentialsProvider.create(authService.getCredentials()));
-
-        builder.batchCreateMediaItemsSettings()
-                .retrySettings()
-                .setMaxAttempts(100)
-                .setInitialRetryDelay(Duration.ofSeconds(1))
-                .setMaxRetryDelay(Duration.ofMinutes(1))
+        return PhotosLibrarySettings.newBuilder()
+                .setCredentialsProvider(FixedCredentialsProvider.create(authService.getCredentials()))
                 .build();
-
-        builder.listAlbumsSettings()
-                .retrySettings()
-                .setInitialRetryDelay(Duration.ofSeconds(1))
-                .setMaxRetryDelay(Duration.ofMinutes(1))
-                .setMaxAttempts(100)
-                .build();
-
-        builder.uploadMediaItemSettingsBuilder()
-                .retrySettings()
-                .setMaxAttempts(100)
-                .setInitialRetryDelay(Duration.ofSeconds(1))
-                .setMaxRetryDelay(Duration.ofMinutes(1))
-                .build();
-
-        builder.createAlbumSettings()
-                .retrySettings()
-                .setMaxAttempts(100)
-                .setInitialRetryDelay(Duration.ofSeconds(1))
-                .setMaxRetryDelay(Duration.ofMinutes(1))
-                .build();
-
-        builder.searchMediaItemsSettings()
-                .retrySettings()
-                .setMaxAttempts(100)
-                .setInitialRetryDelay(Duration.ofSeconds(1))
-                .setMaxRetryDelay(Duration.ofMinutes(1))
-                .build();
-
-        return builder.build();
-
     }
 }
