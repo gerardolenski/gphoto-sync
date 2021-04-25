@@ -14,7 +14,7 @@ import javax.annotation.PostConstruct;
 @ToString
 @ConstructorBinding
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "photouploader.synchronizer")
+@ConfigurationProperties(prefix = "gphotosync.synchronizer")
 public class SyncProperties {
 
     private final int albumsConcurrency;
@@ -23,6 +23,6 @@ public class SyncProperties {
 
     @PostConstruct
     void init() {
-        log.info("Initialize SYNCHRONIZER properties: {}", this);
+        log.info("Initialized SYNCHRONIZER properties: {}", this);
     }
 }

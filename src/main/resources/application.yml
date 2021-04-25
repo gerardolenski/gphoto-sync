@@ -1,4 +1,4 @@
-photouploader:
+gphotosync:
   google:
     photolibrary:
       credential-dir: ${PHOTO_GOOGLE_CREDENTIAL_DIR}
@@ -11,6 +11,10 @@ photouploader:
     albums-concurrency: ${PHOTO_ALBUMS_CONCURRENCY:5}
     upload-concurrency: ${PHOTO_UPLOAD_CONCURRENCY:3}
     upload-bulk-size: ${PHOTO_UPLOAD_BULK_SIZE:10}
+  filter:
+    album:
+      from-year: ${PHOTO_ALBUMS_FROM_YEAR_FILTER:-1}
+      to-year: ${PHOTO_ALBUMS_TO_YEAR_FILTER:-1}
 
 logging:
   level:

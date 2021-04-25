@@ -14,6 +14,6 @@ public class AlbumSyncResult {
     private final long imagesCount;
     private final long missingImages;
     private final Map<String, Long> uploadStats;
-    private final boolean syncFailed;
-    private final String syncErrorMessage;
+    private final boolean syncInterrupted;
+    private final String syncInterruptionMessage;
 }

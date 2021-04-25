@@ -1,4 +1,4 @@
-package org.gol.gphotosync.infrastructure.auth;
+package org.gol.gphotosync.domain.local.filter;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -9,21 +9,22 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 
 import javax.annotation.PostConstruct;
 
+/**
+ * Holds filter configuration.
+ */
 @Slf4j
 @Getter
 @ToString
 @ConstructorBinding
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "gphotosync.google.photolibrary")
-class GooglePhotoLibraryProperties {
+@ConfigurationProperties(prefix = "gphotosync.filter.album")
+class LocalAlbumFilterProperties {
 
-    private final String credentialDir;
-    private final String credentialFile;
-    private final int localReceiverPort;
-    private final String userId;
+    private final int fromYear;
+    private final int toYear;
 
     @PostConstruct
     void init() {
-        log.info("Initialized GOOGLE photo library properties: {}", this);
+        log.info("Initialized LOCAL library album filters properties: {}", this);
     }
 }

@@ -11,15 +11,19 @@ PHOTO_GOOGLE_CREDENTIAL_FILE=credentials.json
 PHOTO_GOOGLE_USER_ID=google.user.id
 PHOTO_GOOGLE_RECEIVER_PORT=61984
 
-#Local library configuration
+# Local library configuration
 PHOTO_LIBRARY_PATH=/the/path/to/local/library/root/directory
+
+# Local albums filtering configuration
+PHOTO_ALBUMS_FROM_YEAR_FILTER=-1
+PHOTO_ALBUMS_TO_YEAR_FILTER=-1
 
 # Performance configuration
 PHOTO_ALBUMS_CONCURRENCY=5
 PHOTO_UPLOAD_CONCURRENCY=3
 PHOTO_UPLOAD_BULK_SIZE=10
 
-#Logging
+# Logging
 PHOTO_LOG_LEVEL=info
 ```
 
@@ -29,6 +33,8 @@ where:
 - `PHOTO_GOOGLE_USER_ID` - the user id used for connection with Google Photo Library (**mandatory**),
 - `PHOTO_GOOGLE_RECEIVER_PORT` - the local port which is used by Google Photo Library Client (`61984` by default),
 - `PHOTO_LIBRARY_PATH` - the local directory with root path containing the image library (**mandatory**),
+- `PHOTO_ALBUMS_FROM_YEAR_FILTER` - lower filter of the album year (`-1` by default which disables filtering),
+- `PHOTO_ALBUMS_TO_YEAR_FILTER` - upper filter of the album year (`-1` by default which disables filtering),
 - `PHOTO_ALBUMS_CONCURRENCY` - number of concurrent threads synchronizing albums (`5` by default),
 - `PHOTO_UPLOAD_CONCURRENCY` - number of concurrent threads uploading images (`3` by default),
 - `PHOTO_UPLOAD_BULK_SIZE` - number of image bulk size linking to remote album. According to Google specification must be less than 50 (`10` by default).

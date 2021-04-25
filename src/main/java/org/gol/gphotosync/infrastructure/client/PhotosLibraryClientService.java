@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.gol.gphotosync.domain.auth.GoogleCredentialsSupplier;
 import org.gol.gphotosync.domain.google.GoogleClientFactory;
 import org.springframework.stereotype.Service;
-import org.threeten.bp.Duration;
 
 import java.io.IOException;
 

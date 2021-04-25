@@ -15,13 +15,13 @@ import java.nio.file.Path;
 @ToString
 @ConstructorBinding
 @RequiredArgsConstructor
-@ConfigurationProperties(prefix = "photouploader.library")
+@ConfigurationProperties(prefix = "gphotosync.library")
 class LibraryProperties {
 
     private final Path path;
 
     @PostConstruct
     void init() {
-        log.info("Initialize LOCAL library properties: {}", this);
+        log.info("Initialized LOCAL library properties: {}", this);
     }
 }

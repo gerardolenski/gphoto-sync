@@ -4,6 +4,7 @@ import io.vavr.Tuple;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.gol.gphotosync.domain.local.LocalAlbumFilter;
 import org.gol.gphotosync.domain.local.LocalLibraryPort;
 import org.gol.gphotosync.domain.model.LocalAlbum;
 import org.gol.gphotosync.domain.model.LocalImage;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -26,6 +26,7 @@ import static org.gol.gphotosync.domain.util.ImageUtils.getImageMimeType;
 class LocalStorageLibraryService implements LocalLibraryPort {
 
     private final LibraryProperties libraryProperties;
+    private final List<LocalAlbumFilter> filters;
 
     @Override
     public List<LocalAlbum> findAlbums() {
@@ -37,6 +38,7 @@ class LocalStorageLibraryService implements LocalLibraryPort {
                         .path(path)
                         .title(path.getFileName().toString())
                         .build())
+                .filter(this::fulfillAllFilters)
                 .collect(toList()))
                 .getOrElse(List.of());
     }
@@ -68,5 +70,10 @@ class LocalStorageLibraryService implements LocalLibraryPort {
                 .getOrElse(List.of());
         log.trace("Collected images: albumDirectory={}, imagesCount={}", albumDirectory, images.size());
         return images;
+    }
+
+    private boolean fulfillAllFilters(LocalAlbum album) {
+        return filters.stream()
+                .allMatch(f -> f.shouldBeProcessed(album));
     }
 }

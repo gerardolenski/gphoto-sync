@@ -61,8 +61,8 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
                                 .orElse("Unknown"),
                         formatEx(e)))
                 .recover(e -> albumSyncResultBuilder
-                        .syncFailed(true)
-                        .syncErrorMessage(e.getMessage())
+                        .syncInterrupted(true)
+                        .syncInterruptionMessage(e.getMessage())
                         .build())
                 .get();
     }

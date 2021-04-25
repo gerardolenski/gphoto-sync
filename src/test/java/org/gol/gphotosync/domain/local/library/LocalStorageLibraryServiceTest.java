@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,15 +34,35 @@ class LocalStorageLibraryServiceTest {
     @BeforeEach
     void init() {
         lenient().doReturn(LIBRARY_PATH).when(libraryProperties).getPath();
-        sut = new LocalStorageLibraryService(libraryProperties);
+        sut = new LocalStorageLibraryService(libraryProperties, List.of());
     }
 
     @Test
-    void findAlbums() {
+    void shouldFindAllAlbums() {
         //when, then
         assertThat(sut.findAlbums())
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsExactly(ALBUM_1, ALBUM_2, ALBUM_3, ALBUM_4);
+    }
+
+    @Test
+    void shouldFilterOutAllAlbums() {
+        //given
+        sut = new LocalStorageLibraryService(libraryProperties, List.of(a -> false));
+
+        //when, then
+        assertThat(sut.findAlbums())
+                .isEmpty();
+    }
+
+    @Test
+    void shouldNotFilterOutAlbums() {
+        //given
+        sut = new LocalStorageLibraryService(libraryProperties, List.of(a -> true));
+
+        //when, then
+        assertThat(sut.findAlbums())
+                .hasSize(4);
     }
 
     @ParameterizedTest(name = "{index}. {0}")
