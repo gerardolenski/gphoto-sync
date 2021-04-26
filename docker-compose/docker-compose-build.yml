@@ -2,7 +2,7 @@ version: "3.4"
 services:
 
   gphoto-sync:
-    image: golenski/gphoto-sync:0.1.2
+    image: golenski/gphoto-sync:0.2.0
     build:
       dockerfile: Dockerfile
       context: ../
