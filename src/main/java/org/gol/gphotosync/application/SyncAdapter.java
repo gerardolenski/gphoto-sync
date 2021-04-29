@@ -9,6 +9,7 @@ import org.gol.gphotosync.domain.model.AlbumSyncResult;
 import org.gol.gphotosync.domain.sync.SyncPort;
 import org.gol.gphotosync.domain.sync.Synchronizer;
 import org.gol.gphotosync.domain.sync.album.AlbumSynchronizerFactory;
+import org.gol.gphotosync.domain.util.AsyncUtils;
 import org.gol.gphotosync.domain.util.LoggerUtils;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.stereotype.Service;
@@ -45,16 +46,10 @@ public class SyncAdapter implements SyncPort {
                 .map(Synchronizer::invoke)
                 .collect(toList())
                 .stream()
-                .map(this::getFutureResult)
+                .map(AsyncUtils::getFutureResult)
                 .sorted(comparing(AlbumSyncResult::getTitle))
                 .reduce(new SyncResult(), SyncResult::addAlbumSyncResult, (r1, r2) -> r1);
         albumSynchronizerFactory.shutdown();
         return result;
-    }
-
-    private <T> T getFutureResult(Future<T> future) {
-        return Try.of(future::get)
-                .onFailure(e -> log.error("Error occurred while retrieving future result: cause={}", LoggerUtils.formatEx(e)))
-                .get();
     }
 }
