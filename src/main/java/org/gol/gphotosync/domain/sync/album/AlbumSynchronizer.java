@@ -57,7 +57,7 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
         return Try.of(this::synchronizeAlbum)
                 .onFailure(e -> log.error("Album synchronization failed: albumTitle={}, cause={}",
                         ofNullable(localAlbum)
-                                .map(LocalAlbum::getTitle)
+                                .map(LocalAlbum::title)
                                 .orElse("Unknown"),
                         formatEx(e)))
                 .recover(e -> albumSyncResultBuilder
@@ -68,7 +68,7 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
     }
 
     private AlbumSyncResult synchronizeAlbum() {
-        log.info("Synchronizing album: albumTitle={}, path={}", localAlbum.getTitle(), localAlbum.getPath());
+        log.info("Synchronizing album: albumTitle={}, path={}", localAlbum.title(), localAlbum.title());
         loadLocalAlbum();
         loadRemoteAlbum();
         locateMissingImages();
@@ -85,28 +85,28 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
     private void loadLocalAlbum() {
         localImages = localLibrary.getAlbumImages(localAlbum);
         albumSyncResultBuilder
-                .title(localAlbum.getTitle())
+                .title(localAlbum.title())
                 .imagesCount(localImages.size());
     }
 
     private void loadRemoteAlbum() {
-        googleAlbum = remoteAlbum.getOrCreate(localAlbum.getTitle());
+        googleAlbum = remoteAlbum.getOrCreate(localAlbum.title());
         googleImages = remoteImage.listAlbumImages(googleAlbum.getId());
     }
 
     private void locateMissingImages() {
         var missingImages = localImages.stream()
-                .filter(not(img -> googleImages.contains(img.getFileName())))
+                .filter(not(img -> googleImages.contains(img.fileName())))
                 .collect(toList());
         albumSyncResultBuilder.missingImages(missingImages.size());
         missingImagesPartitions = partition(missingImages, partitionSize);
         if (isEmpty(missingImages)) {
-            log.info("The album is up to date: albumTitle={}", localAlbum.getTitle());
+            log.info("The album is up to date: albumTitle={}", localAlbum.title());
         } else {
             log.debug("New images to upload: albumTitle={}, images={}, partitions={}",
-                    localAlbum.getTitle(),
+                    localAlbum.title(),
                     missingImages.stream()
-                            .map(LocalImage::getFileName)
+                            .map(LocalImage::fileName)
                             .collect(joining(", ")),
                     missingImagesPartitions.size());
         }

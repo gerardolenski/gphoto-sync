@@ -41,16 +41,16 @@ class RemoteImageService implements RemoteImagePort {
 
     @Override
     public NewMediaItem uploadImage(LocalImage image) {
-        log.info("Uploading image: {}", image.getDescription());
+        log.info("Uploading image: {}", image.description());
         return withResources(googleClientFactory::getClient)
-                .of(client -> mediaItemRepository.uploadImage(client, image.getFile(), image.getMimeType()))
-                .onFailure(e -> log.error("Image upload failed: image={}, cause={}", image.getFileName(), formatEx(e)))
+                .of(client -> mediaItemRepository.uploadImage(client, image.file(), image.mimeType()))
+                .onFailure(e -> log.error("Image upload failed: image={}, cause={}", image.fileName(), formatEx(e)))
                 .peek(r -> log.trace("Image upload response: token={}, error={}", r.getUploadToken(), r.getError()))
                 .map(UploadMediaItemResponse::getUploadToken)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .mapTry(token -> createNewMediaItem(token, image.getFileName(), image.getDescription()))
-                .onFailure(e -> log.error("Create media item failed: image={}, cause={}", image.getFileName(), formatEx(e)))
+                .mapTry(token -> createNewMediaItem(token, image.fileName(), image.description()))
+                .onFailure(e -> log.error("Create media item failed: image={}, cause={}", image.fileName(), formatEx(e)))
                 .getOrElseThrow(() -> new IllegalStateException(format("Image upload failed: image=%s", image)));
     }
 }
