@@ -21,7 +21,7 @@ class FilterUtils {
     public static final Predicate<Boolean> IS_TRUE = b -> b;
 
     public static int retrieveAlbumYear(LocalAlbum album) {
-        return Try.of(() -> Integer.valueOf(substring(album.getTitle(), 0, 4)))
+        return Try.of(() -> Integer.valueOf(substring(album.title(), 0, 4)))
                 .onFailure(e -> log.warn("The album title does not starts with year. Sync is skipped: album={}", album))
                 .getOrElse(-1);
     }

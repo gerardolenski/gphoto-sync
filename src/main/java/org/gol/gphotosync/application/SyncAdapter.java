@@ -1,6 +1,5 @@
 package org.gol.gphotosync.application;
 
-import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
@@ -10,14 +9,10 @@ import org.gol.gphotosync.domain.sync.SyncPort;
 import org.gol.gphotosync.domain.sync.Synchronizer;
 import org.gol.gphotosync.domain.sync.album.AlbumSynchronizerFactory;
 import org.gol.gphotosync.domain.util.AsyncUtils;
-import org.gol.gphotosync.domain.util.LoggerUtils;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.Future;
-
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
@@ -44,10 +39,9 @@ public class SyncAdapter implements SyncPort {
         var result = localLibrary.findAlbums().stream()
                 .map(albumSynchronizerFactory::getSynchronizer)
                 .map(Synchronizer::invoke)
-                .collect(toList())
-                .stream()
+                .toList().stream()
                 .map(AsyncUtils::getFutureResult)
-                .sorted(comparing(AlbumSyncResult::getTitle))
+                .sorted(comparing(AlbumSyncResult::title))
                 .reduce(new SyncResult(), SyncResult::addAlbumSyncResult, (r1, r2) -> r1);
         albumSynchronizerFactory.shutdown();
         return result;

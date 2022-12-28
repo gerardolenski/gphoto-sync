@@ -1,4 +1,4 @@
-FROM maven:3.8.1-jdk-11 AS build-stage
+FROM maven:3.8.5-openjdk-17 AS build-stage
 WORKDIR /app
 
 COPY ./pom.xml ./pom.xml
@@ -9,7 +9,7 @@ COPY ./src ./src
 RUN mvn --batch-mode clean package
 
 
-FROM openjdk:11-jre-slim as run-stage
+FROM openjdk:17-slim as run-stage
 WORKDIR /app
 COPY --from=build-stage /app/target/google-photo-synchronizer-*.jar /app/gphoto-sync.jar
 ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -jar gphoto-sync.jar"]

@@ -83,7 +83,7 @@ class LocalStorageLibraryServiceTest {
     @DisplayName("should filter all albums except ALBUM_3 [positive]")
     void shouldFilterParticularAlbum() {
         //given
-        sut = new LocalStorageLibraryService(libraryProperties, List.of(a -> contains(a.getTitle(), "album 3")));
+        sut = new LocalStorageLibraryService(libraryProperties, List.of(a -> contains(a.title(), "album 3")));
 
         //when, then
         assertThat(sut.findAlbums())

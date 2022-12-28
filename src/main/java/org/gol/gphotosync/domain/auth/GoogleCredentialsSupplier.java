@@ -12,5 +12,4 @@ public interface GoogleCredentialsSupplier {
      * @return {@link Credentials} object
      */
     Credentials getCredentials();
-
 }

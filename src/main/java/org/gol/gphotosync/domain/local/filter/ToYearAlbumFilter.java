@@ -38,7 +38,7 @@ class ToYearAlbumFilter implements LocalAlbumFilter {
                 .filter(IS_YEAR_DEFINED)
                 .map(albumYear -> albumYear <= toYear)
                 .filter(IS_TRUE)
-                .onEmpty(() -> log.debug("The album was filtered out: albumTitle={}", album.getTitle()))
+                .onEmpty(() -> log.debug("The album was filtered out: albumTitle={}", album.title()))
                 .getOrElse(false);
     }
 }

@@ -10,12 +10,18 @@
     </parent>
     <groupId>org.gol</groupId>
     <artifactId>google-photo-synchronizer</artifactId>
-    <version>0.2.1</version>
+    <version>0.3.0-SNAPSHOT</version>
     <name>google-photo-sync</name>
     <description>Google Photo Synchronizer</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <google-photos-client.version>1.6.1</google-photos-client.version>
+        <google-api-client.version>1.31.4</google-api-client.version>
+        <google-auth-library.version>0.25.2</google-auth-library.version>
+        <google-oauth-client-jetty.version>1.31.5</google-oauth-client-jetty.version>
+        <vavr.version>0.10.4</vavr.version>
+        <findbugs.version>3.0.1</findbugs.version>
+        <lombok.version>1.18.24</lombok.version>
     </properties>
     <dependencies>
         <dependency>
@@ -30,33 +36,33 @@
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
-            <version>1.31.4</version>
+            <version>${google-api-client.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-oauth2-http</artifactId>
-            <version>0.25.2</version>
+            <version>${google-auth-library.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-jetty</artifactId>
-            <version>1.31.5</version>
+            <version>${google-oauth-client-jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
-            <version>0.10.3</version>
+            <version>${vavr.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
-            <version>3.0.1</version>
+            <version>${findbugs.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.20</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
