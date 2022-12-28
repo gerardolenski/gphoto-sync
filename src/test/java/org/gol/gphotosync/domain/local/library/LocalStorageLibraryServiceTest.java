@@ -1,7 +1,9 @@
 package org.gol.gphotosync.domain.local.library;
 
+import org.gol.gphotosync.domain.local.LocalAlbumFilter;
 import org.gol.gphotosync.domain.model.LocalAlbum;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,6 +16,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.apache.commons.lang3.StringUtils.contains;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 
@@ -38,6 +41,7 @@ class LocalStorageLibraryServiceTest {
     }
 
     @Test
+    @DisplayName("should correctly find all local library albums [positive]")
     void shouldFindAllAlbums() {
         //when, then
         assertThat(sut.findAlbums())
@@ -45,17 +49,27 @@ class LocalStorageLibraryServiceTest {
                 .containsExactly(ALBUM_1, ALBUM_2, ALBUM_3, ALBUM_4);
     }
 
-    @Test
-    void shouldFilterOutAllAlbums() {
+    @ParameterizedTest(name = "{index}. {0}")
+    @MethodSource("negativeFilterProvider")
+    @DisplayName("should filter out all albums [negative]")
+    void shouldFilterOutAllAlbums(String testCase, List<LocalAlbumFilter> filters) {
         //given
-        sut = new LocalStorageLibraryService(libraryProperties, List.of(a -> false));
+        sut = new LocalStorageLibraryService(libraryProperties, filters);
 
         //when, then
         assertThat(sut.findAlbums())
                 .isEmpty();
     }
 
+    private static Stream<Arguments> negativeFilterProvider() {
+        return Stream.of(
+                Arguments.of("only one negative filter", List.of((LocalAlbumFilter) a -> false)),
+                Arguments.of("two negative filter", List.of((LocalAlbumFilter) a -> false, a -> false)),
+                Arguments.of("positive and negative filter", List.of((LocalAlbumFilter) a -> true, a -> false)));
+    }
+
     @Test
+    @DisplayName("should not filter albums [positive]")
     void shouldNotFilterOutAlbums() {
         //given
         sut = new LocalStorageLibraryService(libraryProperties, List.of(a -> true));
@@ -65,8 +79,21 @@ class LocalStorageLibraryServiceTest {
                 .hasSize(4);
     }
 
+    @Test
+    @DisplayName("should filter all albums except ALBUM_3 [positive]")
+    void shouldFilterParticularAlbum() {
+        //given
+        sut = new LocalStorageLibraryService(libraryProperties, List.of(a -> contains(a.getTitle(), "album 3")));
+
+        //when, then
+        assertThat(sut.findAlbums())
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsOnly(ALBUM_3);
+    }
+
     @ParameterizedTest(name = "{index}. {0}")
     @MethodSource("albumProvider")
+    @DisplayName("should retrieve all images from album [positive]")
     void getAlbumImages(LocalAlbum album, int expectedSize) {
         //when
         var images = sut.getAlbumImages(album);
