@@ -29,17 +29,19 @@ class ImageUtilsTest {
         assertThat(getImageMimeType(imagePath))
                 .isNotEmpty()
                 .get()
-                .isEqualTo(expectedMimeType);
+                .asString()
+                .startsWith("image/")
+                .contains(expectedMimeType);
     }
 
     private static Stream<Arguments> imageProvider() {
         return Stream.of(
-                Arguments.of("bmp", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.bmp"), "image/x-ms-bmp"),
-                Arguments.of("gif", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.gif"), "image/gif"),
-                Arguments.of("jpeg", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.jpeg"), "image/jpeg"),
-                Arguments.of("jpg", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.jpg"), "image/jpeg"),
-                Arguments.of("png", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.png"), "image/png"),
-                Arguments.of("tiff", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.tiff"), "image/tiff"));
+                Arguments.of("bmp", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.bmp"), "bmp"),
+                Arguments.of("gif", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.gif"), "gif"),
+                Arguments.of("jpeg", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.jpeg"), "jpeg"),
+                Arguments.of("jpg", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.jpg"), "jpeg"),
+                Arguments.of("png", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.png"), "png"),
+                Arguments.of("tiff", Path.of("src/test/resources/library/2020/2020.01 - album 1/test.tiff"), "tiff"));
     }
 
     @ParameterizedTest(name = "{index}. {0}")
