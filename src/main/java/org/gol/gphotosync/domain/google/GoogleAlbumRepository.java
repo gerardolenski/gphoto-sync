@@ -10,4 +10,6 @@ public interface GoogleAlbumRepository {
     Stream<Album> streamAlbums(PhotosLibraryClient client);
 
     Album createAlbum(PhotosLibraryClient client, String title);
+
+
 }

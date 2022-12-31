@@ -1,0 +1,15 @@
+gphotosync:
+  google:
+    photolibrary:
+      credential-dir: src/test/resources/google
+      user-id: user@google.com
+  library:
+    path: src/test/resources/library
+  synchronizer:
+    albums-concurrency: 2
+    upload-concurrency: 2
+    upload-bulk-size: 2
+
+logging:
+  level:
+    org.gol: trace

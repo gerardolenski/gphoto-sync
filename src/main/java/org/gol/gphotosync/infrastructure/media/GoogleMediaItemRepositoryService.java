@@ -2,6 +2,8 @@ package org.gol.gphotosync.infrastructure.media;
 
 import com.google.photos.library.v1.PhotosLibraryClient;
 import com.google.photos.library.v1.internal.InternalPhotosLibraryClient;
+import com.google.photos.library.v1.proto.BatchCreateMediaItemsResponse;
+import com.google.photos.library.v1.proto.NewMediaItem;
 import com.google.photos.library.v1.proto.SearchMediaItemsResponse;
 import com.google.photos.library.v1.upload.UploadMediaItemRequest;
 import com.google.photos.library.v1.upload.UploadMediaItemResponse;
@@ -14,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -42,5 +45,10 @@ class GoogleMediaItemRepositoryService implements GoogleMediaItemRepository {
                     .build();
             return client.uploadMediaItem(uploadRequest);
         }
+    }
+
+    @Override
+    public BatchCreateMediaItemsResponse linkImages(PhotosLibraryClient client, String albumId, List<NewMediaItem> images) {
+        return client.batchCreateMediaItems(albumId, images);
     }
 }

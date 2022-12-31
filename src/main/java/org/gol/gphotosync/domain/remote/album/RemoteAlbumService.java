@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gol.gphotosync.domain.google.GoogleAlbumRepository;
 import org.gol.gphotosync.domain.google.GoogleClientFactory;
+import org.gol.gphotosync.domain.google.GoogleMediaItemRepository;
 import org.gol.gphotosync.domain.remote.RemoteAlbumPort;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ class RemoteAlbumService implements RemoteAlbumPort {
 
     private final GoogleClientFactory googleClientFactory;
     private final GoogleAlbumRepository albumRepository;
+    private final GoogleMediaItemRepository mediaItemRepository;
 
     @Override
     public Album getOrCreate(String title) {
@@ -40,7 +42,7 @@ class RemoteAlbumService implements RemoteAlbumPort {
     public BatchCreateMediaItemsResponse addElements(Album album, List<NewMediaItem> images) {
         log.info("Linking album images: albumTitle={}", album.getTitle());
         return withResources(googleClientFactory::getClient)
-                .of(client -> client.batchCreateMediaItems(album.getId(), images))
+                .of(client -> mediaItemRepository.linkImages(client, album.getId(), images))
                 .onSuccess(result -> this.logCreateMediaItemsResponse(album.getTitle(), result))
                 .onFailure(e -> log.error("Linking album images failed: albumTitle={}, cause={}", album.getTitle(), formatEx(e)))
                 .get();
