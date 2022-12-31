@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.gol.gphotosync.domain.google.GoogleMediaItemRepository;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +48,7 @@ class InMemoryMediaRepository implements GoogleMediaItemRepository {
     }
 
     @Override
-    public UploadMediaItemResponse uploadImage(PhotosLibraryClient client, File image, String mimeType) throws IOException {
+    public UploadMediaItemResponse uploadImage(PhotosLibraryClient client, File image, String mimeType) {
         var mediaItem = MediaItem.newBuilder()
                 .setId(UUID.randomUUID().toString())
                 .setFilename(image.getName())
