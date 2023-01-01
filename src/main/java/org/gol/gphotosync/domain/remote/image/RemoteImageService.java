@@ -17,7 +17,6 @@ import java.util.Optional;
 import static com.google.photos.library.v1.util.NewMediaItemFactory.createNewMediaItem;
 import static io.vavr.control.Try.withResources;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 import static org.gol.gphotosync.domain.util.LoggerUtils.formatEx;
 
 @Slf4j
@@ -34,7 +33,7 @@ class RemoteImageService implements RemoteImagePort {
         return withResources(googleClientFactory::getClient)
                 .of(client -> mediaItemRepository.streamAlbumItems(client, albumId)
                         .map(MediaItem::getFilename)
-                        .collect(toList()))
+                        .toList())
                 .onFailure(e -> log.error("Listing album images failed: albumId={}, cause={}", albumId, formatEx(e)))
                 .get();
     }

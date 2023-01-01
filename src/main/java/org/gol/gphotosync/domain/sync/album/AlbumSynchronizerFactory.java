@@ -1,7 +1,7 @@
 package org.gol.gphotosync.domain.sync.album;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.gol.gphotosync.domain.local.LocalLibraryPort;
 import org.gol.gphotosync.domain.model.AlbumSyncResult;
 import org.gol.gphotosync.domain.model.LocalAlbum;
@@ -20,7 +20,7 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
 @Slf4j
 @Service
 @Scope(SCOPE_PROTOTYPE)
-public class AlbumSynchronizerFactory {
+public class AlbumSynchronizerFactory implements AutoCloseable {
 
     private final RemoteAlbumPort remoteAlbum;
     private final RemoteImagePort remoteImage;
@@ -40,12 +40,12 @@ public class AlbumSynchronizerFactory {
         this.localLibraryOperation = localLibraryOperation;
         this.syncProperties = syncProperties;
         this.albumSyncExecutor = newFixedThreadPool(syncProperties.getAlbumsConcurrency(),
-                new BasicThreadFactory.Builder()
-                        .namingPattern("album-pool-%d")
+                new ThreadFactoryBuilder()
+                        .setNameFormat("album-pool-%d")
                         .build());
         this.uploadExecutor = newFixedThreadPool(syncProperties.getUploadConcurrency(),
-                new BasicThreadFactory.Builder()
-                        .namingPattern("upload-pool-%d")
+                new ThreadFactoryBuilder()
+                        .setNameFormat("upload-pool-%d")
                         .build());
     }
 
@@ -63,5 +63,10 @@ public class AlbumSynchronizerFactory {
         log.info("Shutting down executor services ...");
         albumSyncExecutor.shutdown();
         uploadExecutor.shutdown();
+    }
+
+    @Override
+    public void close() {
+        shutdown();
     }
 }

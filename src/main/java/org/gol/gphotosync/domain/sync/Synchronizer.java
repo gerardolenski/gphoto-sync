@@ -1,7 +1,7 @@
 package org.gol.gphotosync.domain.sync;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 public interface Synchronizer<T> {
-    Future<T> invoke();
+    CompletableFuture<T> invoke();
 }

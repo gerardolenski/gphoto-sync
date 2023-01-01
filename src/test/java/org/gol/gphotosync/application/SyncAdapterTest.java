@@ -6,6 +6,7 @@ import org.gol.gphotosync.domain.google.GoogleAlbumRepository;
 import org.gol.gphotosync.domain.google.GoogleClientFactory;
 import org.gol.gphotosync.domain.google.GoogleMediaItemRepository;
 import org.gol.gphotosync.domain.model.AlbumSyncResult;
+import org.gol.gphotosync.domain.model.UploadStat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,7 +104,7 @@ class SyncAdapterTest {
                 .title(title)
                 .imagesCount(imagesCount)
                 .missingImages(missingImages)
-                .uploadStats(missingImages > 0 ? Map.of("Success", missingImages) : Map.of())
+                .uploadStats(missingImages > 0 ? List.of(new UploadStat("Success", missingImages)) : List.of())
                 .build();
     }
 

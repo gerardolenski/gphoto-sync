@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.vavr.control.Try.withResources;
-import static java.util.stream.Collectors.toList;
 import static org.gol.gphotosync.domain.util.LoggerUtils.formatEx;
 
 @Slf4j
@@ -67,6 +66,6 @@ class RemoteAlbumService implements RemoteAlbumPort {
         log.debug("Linking album images result: albumTitle={}, images={}", albumTitle, response.getNewMediaItemResultsList()
                 .stream()
                 .map(r -> r.getStatus().getMessage() + ": " + r.getMediaItem().getFilename())
-                .collect(toList()));
+                .toList());
     }
 }

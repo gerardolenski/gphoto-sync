@@ -8,10 +8,13 @@ import org.gol.gphotosync.domain.model.AlbumSyncResult;
 import org.gol.gphotosync.domain.sync.SyncPort;
 import org.gol.gphotosync.domain.sync.Synchronizer;
 import org.gol.gphotosync.domain.sync.album.AlbumSynchronizerFactory;
-import org.gol.gphotosync.domain.util.AsyncUtils;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import static io.vavr.control.Try.withResources;
 import static java.util.Comparator.comparing;
 
 @Slf4j
@@ -28,22 +31,27 @@ public class SyncAdapter implements SyncPort {
         var watch = StopWatch.create();
         watch.start();
 
-        var result = syncLibrary(albumSynchronizerFactoryProvider.getObject());
+        var result = syncLibrary();
 
         watch.stop();
         log.info("Synchronization took: {}", watch.formatTime());
         return result;
     }
 
-    private SyncResult syncLibrary(AlbumSynchronizerFactory albumSynchronizerFactory) {
-        var result = localLibrary.findAlbums().stream()
+    private SyncResult syncLibrary() {
+        return withResources(albumSynchronizerFactoryProvider::getObject)
+                .of(syncFactory -> fireTasks(syncFactory)
+                        .stream()
+                        .map(CompletableFuture::join)
+                        .sorted(comparing(AlbumSyncResult::title))
+                        .reduce(new SyncResult(), SyncResult::addAlbumSyncResult, (r1, r2) -> r1))
+                .get();
+    }
+
+    private List<CompletableFuture<AlbumSyncResult>> fireTasks(AlbumSynchronizerFactory albumSynchronizerFactory) {
+        return localLibrary.findAlbums().stream()
                 .map(albumSynchronizerFactory::getSynchronizer)
                 .map(Synchronizer::invoke)
-                .toList().stream()
-                .map(AsyncUtils::getFutureResult)
-                .sorted(comparing(AlbumSyncResult::title))
-                .reduce(new SyncResult(), SyncResult::addAlbumSyncResult, (r1, r2) -> r1);
-        albumSynchronizerFactory.shutdown();
-        return result;
+                .toList();
     }
 }
