@@ -2,14 +2,14 @@ package org.gol.gphotosync.domain.model;
 
 import lombok.Builder;
 
-import java.util.Map;
+import java.util.List;
 
 @Builder
 public record AlbumSyncResult(
         String title,
         long imagesCount,
         long missingImages,
-        Map<String, Long> uploadStats,
+        List<UploadStat> uploadStats,
         boolean syncInterrupted,
         String syncInterruptionMessage) {
 }

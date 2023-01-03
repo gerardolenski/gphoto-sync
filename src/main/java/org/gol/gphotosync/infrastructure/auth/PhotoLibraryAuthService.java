@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.gol.gphotosync.domain.util.LoggerUtils.formatEx;
 
 /**
@@ -68,8 +69,8 @@ class PhotoLibraryAuthService implements GoogleCredentialsSupplier {
         var credentialFilePath = Path.of(photoLibraryProps.getCredentialDir(), photoLibraryProps.getCredentialFile());
         log.debug("Load client secret: credentialFile={}", credentialFilePath);
 
-        return Try.of(() -> GoogleClientSecrets.load(JSON_FACTORY, new FileReader(credentialFilePath.toFile())))
-                .onFailure(e -> log.error("Cannot read client seecret: {}", formatEx(e)))
+        return Try.of(() -> GoogleClientSecrets.load(JSON_FACTORY, new FileReader(credentialFilePath.toFile(), UTF_8)))
+                .onFailure(e -> log.error("Cannot read client secret: {}", formatEx(e)))
                 .get();
     }
 
