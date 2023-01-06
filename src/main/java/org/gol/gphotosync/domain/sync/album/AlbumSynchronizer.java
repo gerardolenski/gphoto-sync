@@ -5,10 +5,9 @@ import com.google.photos.types.proto.Album;
 import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.gol.gphotosync.domain.local.LocalLibraryPort;
+import org.gol.gphotosync.domain.local.LocalAlbum;
+import org.gol.gphotosync.domain.local.LocalImage;
 import org.gol.gphotosync.domain.model.AlbumSyncResult;
-import org.gol.gphotosync.domain.model.LocalAlbum;
-import org.gol.gphotosync.domain.model.LocalImage;
 import org.gol.gphotosync.domain.model.UploadStat;
 import org.gol.gphotosync.domain.remote.RemoteAlbumPort;
 import org.gol.gphotosync.domain.remote.RemoteImagePort;
@@ -39,7 +38,6 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
     private final LocalAlbum localAlbum;
     private final RemoteAlbumPort remoteAlbum;
     private final RemoteImagePort remoteImage;
-    private final LocalLibraryPort localLibrary;
     private final int partitionSize;
     private final ExecutorService albumSyncExecutor;
     private final ExecutorService uploadExecutor;
@@ -60,7 +58,7 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
         return Try.of(this::synchronizeAlbum)
                 .onFailure(e -> log.error("Album synchronization failed: albumTitle={}, cause={}",
                         ofNullable(localAlbum)
-                                .map(LocalAlbum::title)
+                                .map(LocalAlbum::getTitle)
                                 .orElse("Unknown"),
                         formatEx(e)))
                 .recover(e -> albumSyncResultBuilder
@@ -71,7 +69,7 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
     }
 
     private AlbumSyncResult synchronizeAlbum() {
-        log.info("Synchronizing album: albumTitle={}, path={}", localAlbum.title(), localAlbum.title());
+        log.info("Synchronizing album: {}", localAlbum);
         loadLocalAlbum();
         loadRemoteAlbum();
         locateMissingImages();
@@ -89,30 +87,30 @@ class AlbumSynchronizer implements Synchronizer<AlbumSyncResult>, Callable<Album
     }
 
     private void loadLocalAlbum() {
-        localImages = localLibrary.getAlbumImages(localAlbum);
+        localImages = localAlbum.getImages();
         albumSyncResultBuilder
-                .title(localAlbum.title())
+                .title(localAlbum.getTitle())
                 .imagesCount(localImages.size());
     }
 
     private void loadRemoteAlbum() {
-        googleAlbum = remoteAlbum.getOrCreate(localAlbum.title());
+        googleAlbum = remoteAlbum.getOrCreate(localAlbum.getTitle());
         googleImages = remoteImage.listAlbumImages(googleAlbum.getId());
     }
 
     private void locateMissingImages() {
         var missingImages = localImages.stream()
-                .filter(not(img -> googleImages.contains(img.fileName())))
+                .filter(not(img -> googleImages.contains(img.getFileName())))
                 .toList();
         albumSyncResultBuilder.missingImages(missingImages.size());
         missingImagesPartitions = partition(missingImages, partitionSize);
         if (isEmpty(missingImages)) {
-            log.info("The album is up to date: albumTitle={}", localAlbum.title());
+            log.info("The album is up to date: albumTitle={}", localAlbum.getTitle());
         } else {
             log.debug("New images to upload: albumTitle={}, images={}, partitions={}",
-                    localAlbum.title(),
+                    localAlbum.getTitle(),
                     missingImages.stream()
-                            .map(LocalImage::fileName)
+                            .map(LocalImage::getFileName)
                             .collect(joining(", ")),
                     missingImagesPartitions.size());
         }

@@ -1,7 +1,7 @@
 package org.gol.gphotosync.domain.remote;
 
 import com.google.photos.library.v1.proto.NewMediaItem;
-import org.gol.gphotosync.domain.model.LocalImage;
+import org.gol.gphotosync.domain.local.LocalImage;
 
 import java.util.List;
 

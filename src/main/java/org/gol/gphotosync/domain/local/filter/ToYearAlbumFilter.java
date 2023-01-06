@@ -2,11 +2,15 @@ package org.gol.gphotosync.domain.local.filter;
 
 import io.vavr.control.Option;
 import lombok.extern.slf4j.Slf4j;
+import org.gol.gphotosync.domain.local.LocalAlbum;
 import org.gol.gphotosync.domain.local.LocalAlbumFilter;
-import org.gol.gphotosync.domain.model.LocalAlbum;
 import org.springframework.stereotype.Service;
 
-import static org.gol.gphotosync.domain.local.filter.FilterUtils.*;
+import java.time.Year;
+import java.util.Optional;
+
+import static java.lang.Boolean.TRUE;
+import static org.gol.gphotosync.domain.local.filter.FilterUtils.IS_YEAR_DEFINED;
 
 /**
  * Filters out any album which year is after configured one in 'PHOTO_ALBUMS_TO_YEAR_FILTER' environment variable.
@@ -34,11 +38,13 @@ class ToYearAlbumFilter implements LocalAlbumFilter {
     }
 
     private boolean doFilter(LocalAlbum album) {
-        return Option.of(retrieveAlbumYear(album))
-                .filter(IS_YEAR_DEFINED)
-                .map(albumYear -> albumYear <= toYear)
-                .filter(IS_TRUE)
-                .onEmpty(() -> log.debug("The album was filtered out: albumTitle={}", album.title()))
+        return Option.of(album.getYear())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Year::getValue)
+                .filter(albumYear -> albumYear <= toYear)
+                .map(a -> TRUE)
+                .onEmpty(() -> log.debug("The album was filtered out: albumTitle={}", album.getTitle()))
                 .getOrElse(false);
     }
 }
