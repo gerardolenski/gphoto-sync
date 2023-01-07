@@ -12,7 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.contains;
@@ -38,7 +38,7 @@ class FileSystemLibraryAdapterTest {
     @DisplayName("should correctly find all local library albums [positive]")
     void shouldFindAllAlbums() {
         //given
-        var query = new AlbumFindQuery(Set.of());
+        var query = new AlbumFindQuery(List.of());
 
         //when, then
         assertThat(sut.findAlbums(query))
@@ -49,7 +49,7 @@ class FileSystemLibraryAdapterTest {
     @ParameterizedTest(name = "{index}. {0}")
     @MethodSource("negativeFilterProvider")
     @DisplayName("should filter out all albums [negative]")
-    void shouldFilterOutAllAlbums(String testCase, Set<LocalAlbumFilter> filters) {
+    void shouldFilterOutAllAlbums(String testCase, List<LocalAlbumFilter> filters) {
         //given
         var query = new AlbumFindQuery(filters);
 
@@ -60,16 +60,16 @@ class FileSystemLibraryAdapterTest {
 
     private static Stream<Arguments> negativeFilterProvider() {
         return Stream.of(
-                Arguments.of("only one negative filter", Set.of(NON_MATCH_FILTER)),
-                Arguments.of("two negative filters", Set.of(ONLY_2020_FILTER, ONLY_2021_FILTER)),
-                Arguments.of("positive and negative filter", Set.of(ALL_MATCH_FILTER, NON_MATCH_FILTER)));
+                Arguments.of("only one negative filter", List.of(NON_MATCH_FILTER)),
+                Arguments.of("two negative filters", List.of(ONLY_2020_FILTER, ONLY_2021_FILTER)),
+                Arguments.of("positive and negative filter", List.of(ALL_MATCH_FILTER, NON_MATCH_FILTER)));
     }
 
     @Test
     @DisplayName("should not filter albums [positive]")
     void shouldNotFilterOutAlbums() {
         //given
-        var query = new AlbumFindQuery(Set.of(ALL_MATCH_FILTER));
+        var query = new AlbumFindQuery(List.of(ALL_MATCH_FILTER));
 
         //when, then
         assertThat(sut.findAlbums(query))
@@ -81,33 +81,13 @@ class FileSystemLibraryAdapterTest {
     void shouldFilterParticularAlbum() {
         //given
         LocalAlbumFilter onlyAlbum3Filter = a -> contains(a.getTitle(), "album 3");
-        var query = new AlbumFindQuery(Set.of(onlyAlbum3Filter));
+        var query = new AlbumFindQuery(List.of(onlyAlbum3Filter));
 
         //when, then
         assertThat(sut.findAlbums(query))
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsOnly(ALBUM_3);
     }
-
-//    @ParameterizedTest(name = "{index}. {0}")
-//    @MethodSource("albumProvider")
-//    @DisplayName("should retrieve all images from album [positive]")
-//    void getAlbumImages(FileSystemLocalAlbum album, int expectedSize) {
-//        //when
-//        var images = sut.getAlbumImages(album);
-//
-//        //then
-//        assertThat(images)
-//                .hasSize(expectedSize);
-//    }
-//
-//    private static Stream<Arguments> albumProvider() {
-//        return Stream.of(
-//                Arguments.of(ALBUM_1, 6),
-//                Arguments.of(ALBUM_2, 3),
-//                Arguments.of(ALBUM_3, 9),
-//                Arguments.of(ALBUM_4, 3));
-//    }
 
     private static LocalAlbum getAlbum(String directory) {
         return toLocalAlbum(Path.of(directory));

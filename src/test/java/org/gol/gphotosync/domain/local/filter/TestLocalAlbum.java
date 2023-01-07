@@ -8,6 +8,8 @@ import java.time.Year;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Optional.ofNullable;
+
 @Builder
 record TestLocalAlbum(String title, Year year, List<LocalImage> images) implements LocalAlbum {
     @Override
@@ -17,7 +19,7 @@ record TestLocalAlbum(String title, Year year, List<LocalImage> images) implemen
 
     @Override
     public Optional<Year> getYear() {
-        return Optional.ofNullable(year);
+        return ofNullable(year);
     }
 
     @Override

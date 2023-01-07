@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
 import org.gol.gphotosync.domain.local.AlbumFindQuery;
-import org.gol.gphotosync.domain.local.LocalAlbumFilter;
 import org.gol.gphotosync.domain.local.LocalLibraryPort;
+import org.gol.gphotosync.domain.local.filter.LocalAlbumFilterFactory;
 import org.gol.gphotosync.domain.model.AlbumSyncResult;
 import org.gol.gphotosync.domain.sync.SyncPort;
 import org.gol.gphotosync.domain.sync.Synchronizer;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static io.vavr.control.Try.withResources;
@@ -26,8 +25,8 @@ import static java.util.Comparator.comparing;
 public class SyncAdapter implements SyncPort {
 
     private final LocalLibraryPort localLibrary;
-    private final Set<LocalAlbumFilter> filters;
     private final ObjectFactory<AlbumSynchronizerFactory> albumSynchronizerFactoryProvider;
+    private final LocalAlbumFilterProperties filterProperties;
 
     @Override
     public SyncResult sync() {
@@ -53,7 +52,9 @@ public class SyncAdapter implements SyncPort {
     }
 
     private List<CompletableFuture<AlbumSyncResult>> fireTasks(AlbumSynchronizerFactory albumSynchronizerFactory) {
-        return localLibrary.findAlbums(new AlbumFindQuery(filters)).stream()
+        var filters = LocalAlbumFilterFactory.getByYearFilters(filterProperties.getFromYear(), filterProperties.getToYear());
+        var query = new AlbumFindQuery(filters);
+        return localLibrary.findAlbums(query).stream()
                 .map(albumSynchronizerFactory::getSynchronizer)
                 .map(Synchronizer::invoke)
                 .toList();

@@ -12,7 +12,6 @@ import org.gol.gphotosync.domain.util.ImageUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 
 import static io.vavr.control.Try.withResources;
 
@@ -45,7 +44,7 @@ class FileSystemLibraryAdapter implements LocalLibraryPort {
                 .getOrElse(false);
     }
 
-    private boolean fulfillAllFilters(LocalAlbum album, Set<LocalAlbumFilter> filters) {
+    private boolean fulfillAllFilters(LocalAlbum album, List<LocalAlbumFilter> filters) {
         return filters.stream()
                 .allMatch(f -> f.shouldBeProcessed(album));
     }

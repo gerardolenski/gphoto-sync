@@ -13,8 +13,8 @@ gphotosync:
     upload-bulk-size: ${PHOTO_UPLOAD_BULK_SIZE:10}
   filter:
     album:
-      from-year: ${PHOTO_ALBUMS_FROM_YEAR_FILTER:-1}
-      to-year: ${PHOTO_ALBUMS_TO_YEAR_FILTER:-1}
+      from-year: ${PHOTO_ALBUMS_FROM_YEAR_FILTER}
+      to-year: ${PHOTO_ALBUMS_TO_YEAR_FILTER}
 
 logging:
   level:

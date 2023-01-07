@@ -13,14 +13,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class FromYearAlbumFilterTest {
 
-    private final LocalAlbumFilterProperties properties = new LocalAlbumFilterProperties(2010, 2020);
+    private static final Year YEAR_2010 = Year.of(2010);
 
     @ParameterizedTest(name = "{index}. {0}")
     @MethodSource("positiveTestCaseSupplier")
     @DisplayName("the given album should pass filter [positive]")
-    void shouldPassFilter(String testCase, LocalAlbumFilterProperties properties, LocalAlbum album) {
+    void shouldPassFilter(String testCase, Year fromYear, LocalAlbum album) {
         //given
-        var sut = new FromYearAlbumFilter(properties);
+        var sut = new FromYearAlbumFilter(fromYear);
 
         //when, then
         assertThat(sut.shouldBeProcessed(album))
@@ -31,36 +31,30 @@ class FromYearAlbumFilterTest {
         return Stream.of(
                 Arguments.of(
                         "year is equal to fromYear",
-                        new LocalAlbumFilterProperties(2010, 2020),
+                        YEAR_2010,
                         TestLocalAlbum.builder()
                                 .title("2010.01 - test")
                                 .year(Year.of(2010))
                                 .build()),
                 Arguments.of("year is after fromYear",
-                        new LocalAlbumFilterProperties(2010, 2020),
+                        YEAR_2010,
                         TestLocalAlbum.builder()
                                 .title("2011.01 - test")
                                 .year(Year.of(2011))
                                 .build()),
                 Arguments.of("album contains only year",
-                        new LocalAlbumFilterProperties(2010, 2020),
+                        YEAR_2010,
                         TestLocalAlbum.builder()
                                 .year(Year.of(2012))
-                                .build()),
-                Arguments.of("filter is disabled",
-                        new LocalAlbumFilterProperties(-1, 2020),
-                        TestLocalAlbum.builder()
-                                .title("test")
-                                .year(Year.of(2000))
                                 .build()));
     }
 
     @ParameterizedTest(name = "{index}. {0}")
     @MethodSource("negativeTestCaseSupplier")
     @DisplayName("the given album should not pass filter [negative]")
-    void shouldNotPassFilter(String testCase, LocalAlbumFilterProperties properties, TestLocalAlbum album) {
+    void shouldNotPassFilter(String testCase, Year fromYear, TestLocalAlbum album) {
         //given
-        var sut = new FromYearAlbumFilter(properties);
+        var sut = new FromYearAlbumFilter(fromYear);
 
         //when, then
         assertThat(sut.shouldBeProcessed(album))
@@ -71,13 +65,13 @@ class FromYearAlbumFilterTest {
         return Stream.of(
                 Arguments.of(
                         "year is before fromYear",
-                        new LocalAlbumFilterProperties(2010, 2020),
+                        YEAR_2010,
                         TestLocalAlbum.builder()
                                 .title("2009.01 - test")
                                 .year(Year.of(2009))
                                 .build()),
                 Arguments.of("album don't start with year",
-                        new LocalAlbumFilterProperties(2010, 2020),
+                        YEAR_2010,
                         TestLocalAlbum.builder()
                                 .title("test")
                                 .build()));
