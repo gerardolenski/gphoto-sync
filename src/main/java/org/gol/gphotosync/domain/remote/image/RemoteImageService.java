@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.gol.gphotosync.domain.google.GoogleClientFactory;
 import org.gol.gphotosync.domain.google.GoogleMediaItemRepository;
-import org.gol.gphotosync.domain.model.LocalImage;
+import org.gol.gphotosync.domain.local.LocalImage;
 import org.gol.gphotosync.domain.remote.RemoteImagePort;
 import org.springframework.stereotype.Service;
 
@@ -40,16 +40,16 @@ class RemoteImageService implements RemoteImagePort {
 
     @Override
     public NewMediaItem uploadImage(LocalImage image) {
-        log.info("Uploading image: {}", image.description());
+        log.info("Uploading image: {}", image.getDescription());
         return withResources(googleClientFactory::getClient)
-                .of(client -> mediaItemRepository.uploadImage(client, image.file(), image.mimeType()))
-                .onFailure(e -> log.error("Image upload failed: image={}, cause={}", image.fileName(), formatEx(e)))
+                .of(client -> mediaItemRepository.uploadImage(client, image.getFile(), image.getMimeType()))
+                .onFailure(e -> log.error("Image upload failed: image={}, cause={}", image.getFileName(), formatEx(e)))
                 .peek(r -> log.trace("Image upload response: token={}, error={}", r.getUploadToken(), r.getError()))
                 .map(UploadMediaItemResponse::getUploadToken)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .mapTry(token -> createNewMediaItem(token, image.fileName(), image.description()))
-                .onFailure(e -> log.error("Create media item failed: image={}, cause={}", image.fileName(), formatEx(e)))
+                .mapTry(token -> createNewMediaItem(token, image.getFileName(), image.getDescription()))
+                .onFailure(e -> log.error("Create media item failed: image={}, cause={}", image.getFile(), formatEx(e)))
                 .getOrElseThrow(() -> new IllegalStateException(format("Image upload failed: image=%s", image)));
     }
 }

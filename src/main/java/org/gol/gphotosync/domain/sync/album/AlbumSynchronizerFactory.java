@@ -2,9 +2,8 @@ package org.gol.gphotosync.domain.sync.album;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.gol.gphotosync.domain.local.LocalLibraryPort;
+import org.gol.gphotosync.domain.local.LocalAlbum;
 import org.gol.gphotosync.domain.model.AlbumSyncResult;
-import org.gol.gphotosync.domain.model.LocalAlbum;
 import org.gol.gphotosync.domain.remote.RemoteAlbumPort;
 import org.gol.gphotosync.domain.remote.RemoteImagePort;
 import org.gol.gphotosync.domain.sync.SyncProperties;
@@ -24,7 +23,6 @@ public class AlbumSynchronizerFactory implements AutoCloseable {
 
     private final RemoteAlbumPort remoteAlbum;
     private final RemoteImagePort remoteImage;
-    private final LocalLibraryPort localLibraryOperation;
     private final SyncProperties syncProperties;
     private final ExecutorService albumSyncExecutor;
     private final ExecutorService uploadExecutor;
@@ -32,12 +30,10 @@ public class AlbumSynchronizerFactory implements AutoCloseable {
     public AlbumSynchronizerFactory(
             RemoteAlbumPort remoteAlbum,
             RemoteImagePort remoteImage,
-            LocalLibraryPort localLibraryOperation,
             SyncProperties syncProperties) {
         log.debug("Init AlbumSynchronizerFactory: syncProperties={}", syncProperties);
         this.remoteAlbum = remoteAlbum;
         this.remoteImage = remoteImage;
-        this.localLibraryOperation = localLibraryOperation;
         this.syncProperties = syncProperties;
         this.albumSyncExecutor = newFixedThreadPool(syncProperties.getAlbumsConcurrency(),
                 new ThreadFactoryBuilder()
@@ -53,7 +49,6 @@ public class AlbumSynchronizerFactory implements AutoCloseable {
         return new AlbumSynchronizer(localAlbum,
                 remoteAlbum,
                 remoteImage,
-                localLibraryOperation,
                 syncProperties.getUploadBulkSize(),
                 albumSyncExecutor,
                 uploadExecutor);

@@ -1,12 +1,17 @@
 package org.gol.gphotosync.domain.local;
 
-import org.gol.gphotosync.domain.model.LocalAlbum;
-import org.gol.gphotosync.domain.model.LocalImage;
-
 import java.util.List;
 
+/**
+ * Port for query local image albums library.
+ */
 public interface LocalLibraryPort {
-    List<LocalAlbum> findAlbums();
 
-    List<LocalImage> getAlbumImages(LocalAlbum album);
+    /**
+     * Finds local albums meeting the filtering criteria.
+     *
+     * @param query the query containing filters
+     * @return the list of found albums
+     */
+    List<LocalAlbum> findAlbums(AlbumFindQuery query);
 }

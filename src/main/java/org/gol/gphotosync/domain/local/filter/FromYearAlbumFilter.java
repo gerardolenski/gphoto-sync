@@ -2,43 +2,33 @@ package org.gol.gphotosync.domain.local.filter;
 
 import io.vavr.control.Option;
 import lombok.extern.slf4j.Slf4j;
+import org.gol.gphotosync.domain.local.LocalAlbum;
 import org.gol.gphotosync.domain.local.LocalAlbumFilter;
-import org.gol.gphotosync.domain.model.LocalAlbum;
-import org.springframework.stereotype.Service;
 
-import static org.gol.gphotosync.domain.local.filter.FilterUtils.*;
+import java.time.Year;
+import java.util.function.IntPredicate;
+
+import static org.gol.gphotosync.domain.local.filter.FilterUtils.testYear;
 
 /**
- * Filters out any album which year is before configured one in 'PHOTO_ALBUMS_FROM_YEAR_FILTER' environment variable.
+ * Filters out any album which year is before desired year.
  */
 @Slf4j
-@Service
 class FromYearAlbumFilter implements LocalAlbumFilter {
 
-    private final int fromYear;
+    private final Year fromYear;
+    private final IntPredicate isEqualOrAfter;
 
-    FromYearAlbumFilter(LocalAlbumFilterProperties properties) {
-        this.fromYear = properties.getFromYear();
-        Option.of(this.fromYear)
-                .filter(IS_YEAR_DEFINED)
-                .onEmpty(() -> log.info("Deactivated FROM YEAR local album filter"))
-                .peek(year -> log.info("Activated FROM YEAR local album filter: fromYear={}", year));
+    FromYearAlbumFilter(Year fromYear) {
+        this.fromYear = fromYear;
+        this.isEqualOrAfter = albumYear -> albumYear >= fromYear.getValue();
+        log.info("Activated FROM YEAR local album filter: fromYear={}", fromYear);
     }
 
     @Override
     public boolean shouldBeProcessed(LocalAlbum album) {
         return Option.of(fromYear)
-                .filter(IS_YEAR_DEFINED)
-                .map(year -> doFilter(album))
+                .map(year -> testYear(album, isEqualOrAfter))
                 .getOrElse(true);
-    }
-
-    private boolean doFilter(LocalAlbum album) {
-        return Option.of(retrieveAlbumYear(album))
-                .filter(IS_YEAR_DEFINED)
-                .map(albumYear -> albumYear >= fromYear)
-                .filter(IS_TRUE)
-                .onEmpty(() -> log.debug("The album was filtered out: albumTitle={}", album.title()))
-                .getOrElse(false);
     }
 }

@@ -3,7 +3,9 @@ package org.gol.gphotosync.application;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
+import org.gol.gphotosync.domain.local.AlbumFindQuery;
 import org.gol.gphotosync.domain.local.LocalLibraryPort;
+import org.gol.gphotosync.domain.local.filter.LocalAlbumFilterFactory;
 import org.gol.gphotosync.domain.model.AlbumSyncResult;
 import org.gol.gphotosync.domain.sync.SyncPort;
 import org.gol.gphotosync.domain.sync.Synchronizer;
@@ -24,6 +26,7 @@ public class SyncAdapter implements SyncPort {
 
     private final LocalLibraryPort localLibrary;
     private final ObjectFactory<AlbumSynchronizerFactory> albumSynchronizerFactoryProvider;
+    private final LocalAlbumFilterProperties filterProperties;
 
     @Override
     public SyncResult sync() {
@@ -49,7 +52,9 @@ public class SyncAdapter implements SyncPort {
     }
 
     private List<CompletableFuture<AlbumSyncResult>> fireTasks(AlbumSynchronizerFactory albumSynchronizerFactory) {
-        return localLibrary.findAlbums().stream()
+        var filters = LocalAlbumFilterFactory.getByYearFilters(filterProperties.getFromYear(), filterProperties.getToYear());
+        var query = new AlbumFindQuery(filters);
+        return localLibrary.findAlbums(query).stream()
                 .map(albumSynchronizerFactory::getSynchronizer)
                 .map(Synchronizer::invoke)
                 .toList();

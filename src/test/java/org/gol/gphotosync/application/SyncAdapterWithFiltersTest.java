@@ -14,8 +14,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-
-import java.util.Set;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -23,12 +22,10 @@ import static org.mockito.Mockito.doReturn;
 /**
  * IT test with full flow verification.
  */
-class SyncAdapterTest extends BaseSyncAdapterIT {
+@TestPropertySource(properties = {"gphotosync.filter.album.from-year=2021", "gphotosync.filter.album.to-year=2021"})
+class SyncAdapterWithFiltersTest extends BaseSyncAdapterIT {
 
-    private static final String ALBUM_1 = "2020.01 - album 1";
-    private static final String ALBUM_2 = "2020.02 - album 2";
     private static final String ALBUM_3 = "2021.12 - album 3";
-    private static final String ALBUM_4 = "album 4";
 
     @Autowired
     private SyncAdapter syncAdapter;
@@ -53,41 +50,14 @@ class SyncAdapterTest extends BaseSyncAdapterIT {
 
 
     @Test
-    @DisplayName("green flow - should upload all new albums from local repository [positive]")
+    @DisplayName("green flow - should upload only album from 2021 from local repository [positive]")
     void syncFlowForAllAlbums() {
         //when
         var result = syncAdapter.sync();
 
         //then
         assertThat(result.albumSyncResults())
-                .containsExactlyInAnyOrder(
-                        createSuccessSyncResult(ALBUM_1, 6, 6),
-                        createSuccessSyncResult(ALBUM_2, 3, 3),
-                        createSuccessSyncResult(ALBUM_3, 9, 9),
-                        createSuccessSyncResult(ALBUM_4, 3, 3));
-    }
-
-    @Test
-    @DisplayName("green flow - should upload missing images from local repository [positive]")
-    void syncFlowForMissingImages() {
-        //given
-        var album1 = inMemoryAlbumRepository.createAlbum(photosLibraryClient, ALBUM_1);
-        inMemoryMediaRepository.addItems(album1.getId(), Set.of("test.bmp", "test.gif"));
-        var album2 = inMemoryAlbumRepository.createAlbum(photosLibraryClient, ALBUM_2);
-        inMemoryMediaRepository.addItems(album2.getId(), Set.of("img1.jpg", "img2.jpg", "img3.jpg"));
-        inMemoryAlbumRepository.createAlbum(photosLibraryClient, ALBUM_3);
-        inMemoryAlbumRepository.createAlbum(photosLibraryClient, ALBUM_4);
-
-        //when
-        var result = syncAdapter.sync();
-
-        //then
-        assertThat(result.albumSyncResults())
-                .containsExactlyInAnyOrder(
-                        createSuccessSyncResult(ALBUM_1, 6, 4),
-                        createSuccessSyncResult(ALBUM_2, 3, 0),
-                        createSuccessSyncResult(ALBUM_3, 9, 9),
-                        createSuccessSyncResult(ALBUM_4, 3, 3));
+                .containsExactly(createSuccessSyncResult(ALBUM_3, 9, 9));
     }
 
     @TestConfiguration

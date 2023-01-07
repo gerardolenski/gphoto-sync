@@ -1,15 +1,14 @@
-package org.gol.gphotosync.domain.local.library;
+package org.gol.gphotosync.infrastructure.library.filesystem;
 
+import org.gol.gphotosync.domain.local.AlbumFindQuery;
+import org.gol.gphotosync.domain.local.LocalAlbum;
 import org.gol.gphotosync.domain.local.LocalAlbumFilter;
-import org.gol.gphotosync.domain.model.LocalAlbum;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
@@ -18,33 +17,31 @@ import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.lenient;
+import static org.gol.gphotosync.infrastructure.library.filesystem.FileSystemAlbumFactory.toLocalAlbum;
 
 @ExtendWith(MockitoExtension.class)
-class LocalStorageLibraryServiceTest {
+class FileSystemLibraryAdapterTest {
 
     private static final Path LIBRARY_PATH = Path.of("src/test/resources/library");
     public static final LocalAlbum ALBUM_1 = getAlbum("src/test/resources/library/2020/2020.01 - album 1");
     public static final LocalAlbum ALBUM_2 = getAlbum("src/test/resources/library/2020/2020.02 - album 2");
     public static final LocalAlbum ALBUM_3 = getAlbum("src/test/resources/library/2021/2021.12 - album 3");
     public static final LocalAlbum ALBUM_4 = getAlbum("src/test/resources/library/album 4");
+    public static final LocalAlbumFilter NON_MATCH_FILTER = a -> false;
+    public static final LocalAlbumFilter ALL_MATCH_FILTER = a -> true;
+    public static final LocalAlbumFilter ONLY_2020_FILTER = a -> a.getTitle().startsWith("2020");
+    public static final LocalAlbumFilter ONLY_2021_FILTER = a -> a.getTitle().startsWith("2021");
 
-    @Mock
-    LibraryProperties libraryProperties;
-
-    LocalStorageLibraryService sut;
-
-    @BeforeEach
-    void init() {
-        lenient().doReturn(LIBRARY_PATH).when(libraryProperties).getPath();
-        sut = new LocalStorageLibraryService(libraryProperties, List.of());
-    }
+    FileSystemLibraryAdapter sut = new FileSystemLibraryAdapter(LIBRARY_PATH);
 
     @Test
     @DisplayName("should correctly find all local library albums [positive]")
     void shouldFindAllAlbums() {
+        //given
+        var query = new AlbumFindQuery(List.of());
+
         //when, then
-        assertThat(sut.findAlbums())
+        assertThat(sut.findAlbums(query))
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsExactly(ALBUM_1, ALBUM_2, ALBUM_3, ALBUM_4);
     }
@@ -54,28 +51,28 @@ class LocalStorageLibraryServiceTest {
     @DisplayName("should filter out all albums [negative]")
     void shouldFilterOutAllAlbums(String testCase, List<LocalAlbumFilter> filters) {
         //given
-        sut = new LocalStorageLibraryService(libraryProperties, filters);
+        var query = new AlbumFindQuery(filters);
 
         //when, then
-        assertThat(sut.findAlbums())
+        assertThat(sut.findAlbums(query))
                 .isEmpty();
     }
 
     private static Stream<Arguments> negativeFilterProvider() {
         return Stream.of(
-                Arguments.of("only one negative filter", List.of((LocalAlbumFilter) a -> false)),
-                Arguments.of("two negative filter", List.of((LocalAlbumFilter) a -> false, a -> false)),
-                Arguments.of("positive and negative filter", List.of((LocalAlbumFilter) a -> true, a -> false)));
+                Arguments.of("only one negative filter", List.of(NON_MATCH_FILTER)),
+                Arguments.of("two negative filters", List.of(ONLY_2020_FILTER, ONLY_2021_FILTER)),
+                Arguments.of("positive and negative filter", List.of(ALL_MATCH_FILTER, NON_MATCH_FILTER)));
     }
 
     @Test
     @DisplayName("should not filter albums [positive]")
     void shouldNotFilterOutAlbums() {
         //given
-        sut = new LocalStorageLibraryService(libraryProperties, List.of(a -> true));
+        var query = new AlbumFindQuery(List.of(ALL_MATCH_FILTER));
 
         //when, then
-        assertThat(sut.findAlbums())
+        assertThat(sut.findAlbums(query))
                 .hasSize(4);
     }
 
@@ -83,39 +80,16 @@ class LocalStorageLibraryServiceTest {
     @DisplayName("should filter all albums except ALBUM_3 [positive]")
     void shouldFilterParticularAlbum() {
         //given
-        sut = new LocalStorageLibraryService(libraryProperties, List.of(a -> contains(a.title(), "album 3")));
+        LocalAlbumFilter onlyAlbum3Filter = a -> contains(a.getTitle(), "album 3");
+        var query = new AlbumFindQuery(List.of(onlyAlbum3Filter));
 
         //when, then
-        assertThat(sut.findAlbums())
+        assertThat(sut.findAlbums(query))
                 .usingRecursiveFieldByFieldElementComparator()
                 .containsOnly(ALBUM_3);
     }
 
-    @ParameterizedTest(name = "{index}. {0}")
-    @MethodSource("albumProvider")
-    @DisplayName("should retrieve all images from album [positive]")
-    void getAlbumImages(LocalAlbum album, int expectedSize) {
-        //when
-        var images = sut.getAlbumImages(album);
-
-        //then
-        assertThat(images)
-                .hasSize(expectedSize);
-    }
-
-    private static Stream<Arguments> albumProvider() {
-        return Stream.of(
-                Arguments.of(ALBUM_1, 6),
-                Arguments.of(ALBUM_2, 3),
-                Arguments.of(ALBUM_3, 9),
-                Arguments.of(ALBUM_4, 3));
-    }
-
     private static LocalAlbum getAlbum(String directory) {
-        var path = Path.of(directory);
-        return LocalAlbum.builder()
-                .path(path)
-                .title(path.getFileName().toString())
-                .build();
+        return toLocalAlbum(Path.of(directory));
     }
 }
