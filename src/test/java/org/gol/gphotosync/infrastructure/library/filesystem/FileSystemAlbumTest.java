@@ -1,6 +1,6 @@
 package org.gol.gphotosync.infrastructure.library.filesystem;
 
-import org.gol.gphotosync.domain.local.LocalImage;
+import org.gol.gphotosync.domain.local.model.LocalImage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,11 +42,11 @@ class FileSystemAlbumTest {
     public static Stream<Arguments> albumProvider() {
         return Stream.of(
                 Arguments.of(
-                        "album with year in title and only images in file list",
+                        "album with year in value and only images in file list",
                         ALBUM1_PATH, "2020.01 - album 1", Optional.of(Year.of(2020)),
                         List.of("test.bmp", "test.gif", "test.jpeg", "test.jpg", "test.png", "test.tiff")),
                 Arguments.of(
-                        "album without year in title and subset of images in file list",
+                        "album without year in value and subset of images in file list",
                         ALBUM4_PATH, "album 4", empty(),
                         List.of("img1.jpg", "img2.jpg", "img3.jpg")),
                 Arguments.of(

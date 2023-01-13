@@ -9,6 +9,7 @@ gphotosync:
     albums-concurrency: 2
     upload-concurrency: 2
     upload-bulk-size: 2
+  single-runner-activated: false
 
 logging:
   level:

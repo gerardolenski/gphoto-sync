@@ -1,12 +1,12 @@
 package org.gol.gphotosync.infrastructure.library.filesystem;
 
 import lombok.Builder;
-import org.gol.gphotosync.domain.local.LocalImage;
+import org.gol.gphotosync.domain.local.model.LocalImage;
 
 import java.io.File;
 
 /**
- * DTO working on local file system.
+ * Value object working on local file system.
  */
 @Builder
 record FileSystemImage(

@@ -5,8 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.gol.gphotosync.domain.local.LocalAlbum;
-import org.gol.gphotosync.domain.local.LocalImage;
+import org.gol.gphotosync.domain.local.model.LocalAlbum;
+import org.gol.gphotosync.domain.local.model.LocalImage;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

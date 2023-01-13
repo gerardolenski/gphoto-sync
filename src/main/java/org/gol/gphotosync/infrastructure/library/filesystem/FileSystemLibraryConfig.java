@@ -1,7 +1,7 @@
 package org.gol.gphotosync.infrastructure.library.filesystem;
 
 import lombok.extern.slf4j.Slf4j;
-import org.gol.gphotosync.domain.local.LocalLibraryPort;
+import org.gol.gphotosync.domain.local.LocalLibraryQueryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 class FileSystemLibraryConfig {
 
     @Bean
-    LocalLibraryPort fileSystemLibraryAdapter(FileSystemLibraryProperties libraryProperties) {
+    LocalLibraryQueryPort fileSystemLibraryAdapter(FileSystemLibraryProperties libraryProperties) {
         log.info("Initializing FileSystemLibraryAdapter with parameters: {}", libraryProperties);
         return new FileSystemLibraryAdapter(libraryProperties.path());
     }

@@ -5,7 +5,7 @@ import io.vavr.control.Try;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.gol.gphotosync.domain.local.LocalAlbum;
+import org.gol.gphotosync.domain.local.model.LocalAlbum;
 
 import java.nio.file.Path;
 import java.time.Year;
@@ -37,7 +37,7 @@ class FileSystemAlbumFactory {
     private static Option<Year> retrieveAlbumYear(String title) {
         //TODO parse without exception handling
         return Try.of(() -> Year.parse(substring(title, 0, 4)))
-                .onFailure(e -> log.warn("The album title does not starts with year: title={}", title))
+                .onFailure(e -> log.warn("The album value does not starts with year: value={}", title))
                 .toOption();
     }
 }

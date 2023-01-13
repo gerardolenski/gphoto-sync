@@ -15,6 +15,7 @@ gphotosync:
     album:
       from-year: ${PHOTO_ALBUMS_FROM_YEAR_FILTER}
       to-year: ${PHOTO_ALBUMS_TO_YEAR_FILTER}
+  single-runner-activated: ${PHOTO_SINGLE_RUNNER_ACTIVATED:true}
 
 logging:
   level:

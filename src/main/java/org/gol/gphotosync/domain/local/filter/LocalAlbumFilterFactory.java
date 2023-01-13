@@ -17,6 +17,14 @@ import static lombok.AccessLevel.PRIVATE;
  */
 @AllArgsConstructor(access = PRIVATE)
 public class LocalAlbumFilterFactory {
+    /**
+     * Creates the list of filters based on album year. It gives the possibility to retrieve albums only from given time
+     * period.
+     *
+     * @param fromYear the beginning year
+     * @param toYear   the end year
+     * @return the list of created {@link LocalAlbumFilter} objects
+     */
     public static List<LocalAlbumFilter> getByYearFilters(@Nullable Year fromYear,
                                                           @Nullable Year toYear) {
         return Stream.of(

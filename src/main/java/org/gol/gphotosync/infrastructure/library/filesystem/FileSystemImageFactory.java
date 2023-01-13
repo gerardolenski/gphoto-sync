@@ -2,7 +2,7 @@ package org.gol.gphotosync.infrastructure.library.filesystem;
 
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.gol.gphotosync.domain.local.LocalImage;
+import org.gol.gphotosync.domain.local.model.LocalImage;
 
 import java.nio.file.Path;
 import java.util.Optional;

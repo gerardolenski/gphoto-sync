@@ -1,7 +1,7 @@
 package org.gol.gphotosync.infrastructure.library.filesystem;
 
-import org.gol.gphotosync.domain.local.AlbumFindQuery;
-import org.gol.gphotosync.domain.local.LocalAlbum;
+import org.gol.gphotosync.domain.local.model.AlbumFindQuery;
+import org.gol.gphotosync.domain.local.model.LocalAlbum;
 import org.gol.gphotosync.domain.local.LocalAlbumFilter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

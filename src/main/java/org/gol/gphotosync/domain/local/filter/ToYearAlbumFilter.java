@@ -2,7 +2,7 @@ package org.gol.gphotosync.domain.local.filter;
 
 import io.vavr.control.Option;
 import lombok.extern.slf4j.Slf4j;
-import org.gol.gphotosync.domain.local.LocalAlbum;
+import org.gol.gphotosync.domain.local.model.LocalAlbum;
 import org.gol.gphotosync.domain.local.LocalAlbumFilter;
 
 import java.time.Year;

@@ -1,8 +1,8 @@
 package org.gol.gphotosync.domain.local.filter;
 
 import lombok.Builder;
-import org.gol.gphotosync.domain.local.LocalAlbum;
-import org.gol.gphotosync.domain.local.LocalImage;
+import org.gol.gphotosync.domain.local.model.LocalAlbum;
+import org.gol.gphotosync.domain.local.model.LocalImage;
 
 import java.time.Year;
 import java.util.List;
